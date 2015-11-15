@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">BasicTodoApp</string>
+    <string name="new_task">New task</string>
+    <string name="add_task">Add Task</string>
+    <string name="edit_task_below">Edit Task Below :</string>
+    <string name="save_task">Save Task</string>
+</resources>
