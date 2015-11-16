@@ -29,7 +29,12 @@
         android:id="@+id/tVEditTaskTitle"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/btnSaveTask"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_alignRight="@+id/btnSaveTask"
+        android:layout_alignEnd="@+id/btnSaveTask" />
 
     <Button
         android:layout_width="wrap_content"
