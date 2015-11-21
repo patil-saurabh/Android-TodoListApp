@@ -29,6 +29,7 @@ public class EditTaskActivity extends AppCompatActivity {
         intent.putExtra(MainActivity.TASK_POSITION, String.valueOf(position));
         setResult(RESULT_OK, intent);
         this.finish();
+
     }
 
 
