@@ -12,19 +12,23 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.activeandroid.Model;
+import com.activeandroid.query.Select;
+
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private ListView lvItems;
     private EditText etNewTask;
 
-    private ArrayList<String> items;
-    private ArrayAdapter<String> itemsAdapter;
+    private ArrayList<TodoTask> items;
+    private ArrayAdapter<TodoTask> itemsAdapter;
 
     private static String fileName = "tasks.txt";
     private static int REQUEST_CODE = 8192;
@@ -44,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
         etNewTask = (EditText) findViewById(R.id.etNewTask);
         lvItems = (ListView) findViewById(R.id.lvItems);
 
-        readTasksFromFile();
+        //readTasksFromFile();
+        readTasksFromDB();
         //create itemsAdapter to attach to the List View.
         itemsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,items );
 
@@ -53,10 +58,27 @@ public class MainActivity extends AppCompatActivity {
         setUpListVIewListener();
     }
 
+    public void readTasksFromDB() {
+
+        List<TodoTask> results = new Select().all()
+                .from(TodoTask.class)
+                .execute();
+
+        items = new ArrayList<TodoTask>(results);
+    }
+
+    public void writeSingleTaskToDB(TodoTask todoTask){
+        todoTask.save();
+        // Added just for debugging purpose, to check what DB contains after the write
+        // readTasksFromDB();
+    }
+
     public void onAddTask(View view){
         //get the new task entered in the edit text box
         EditText etNewTask = (EditText) findViewById(R.id.etNewTask);
-        String newTask = etNewTask.getText().toString();
+        String newTitle = etNewTask.getText().toString();
+
+        TodoTask newTask = new TodoTask((int)(Math.random()*1000),newTitle);
 
         //and add the new task to the adapter.
         // Okay so you add new things to List Adapter and not directly to the ListView.
@@ -65,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
         //erase the new task entered from the New Task field.
         etNewTask.setText("");
         Toast.makeText(this, TASK_ADDED_TOAST, Toast.LENGTH_LONG).show();
-        writeTasksToFile();
+        //writeTasksToFile();
+        writeSingleTaskToDB(newTask);
     }
 
     private void setUpListVIewListener(){
@@ -74,10 +97,16 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                        //get the TodoTask model from the Adapter.
+                        TodoTask task = (TodoTask) itemsAdapter.getItem(position);
+                        task.delete();
+
                         items.remove(position);
                         itemsAdapter.notifyDataSetChanged();
                         Toast.makeText(view.getContext(), TASK_DELETED_TOAST, Toast.LENGTH_SHORT).show();
-                        writeTasksToFile();
+
+                        //writeTasksToFile();
                         return true;
                     }
                 }
@@ -106,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void writeTasksToFile(){
+    /*private void writeTasksToFile(){
         File filesDir = getFilesDir();
         File tasksFile = new File(filesDir, "tasks.txt");
         try{
@@ -115,8 +144,9 @@ public class MainActivity extends AppCompatActivity {
             ioEx.printStackTrace();
         }
     }
+    */
 
-    private void readTasksFromFile(){
+/*    private void readTasksFromFile(){
         File filesDir = getFilesDir();
         File tasksFile = new File( filesDir,"tasks.txt");
 
@@ -127,24 +157,26 @@ public class MainActivity extends AppCompatActivity {
             ioEx.printStackTrace();
         }
     }
-
+*/
 //not an overridden method, just a callback method that the system calls when the Dest.Activity finishes.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == REQUEST_CODE && resultCode==RESULT_OK ){
             String newText = data.getStringExtra(EditTaskActivity.EDITED_TASK_TEXT);
             int position = Integer.parseInt(data.getStringExtra(TASK_POSITION));
-            /*TextView task = (TextView)lvItems.getChildAt(position);
-            task.setText(newText);*/
 
-            String oldText = items.get(position);
-            items.set(position, newText);
+            TodoTask todoTask = items.get(position);
 
-            itemsAdapter.notifyDataSetChanged();
-            if(!oldText.equals(newText)){
+            if(!todoTask.getTitle().equals(newText)){
                 Toast.makeText(this, TASK_EDITED_TOAST, Toast.LENGTH_LONG).show();
             }
-            writeTasksToFile();
+
+            todoTask.setTitle(newText);
+
+            itemsAdapter.notifyDataSetChanged();
+            //writeTasksToFile();
+
+            writeSingleTaskToDB(todoTask);
         }
 
     }
