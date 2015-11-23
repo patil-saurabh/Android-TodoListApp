@@ -1,5 +1,7 @@
 # Android-TodoListApp
-CodePath assignment of Basic Todo App in Android. 15th Nov.2015. 
+CodePath assignment of Basic Todo App in Android. 
+Created: 15th Nov.2015. 
+Modified: 22nd Nov 2015. (Added SQLite + ActiveAndroid support)
 
 Time Spent: 20 hours
 
